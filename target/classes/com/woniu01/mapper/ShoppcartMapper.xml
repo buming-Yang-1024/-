@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.woniu01.mapper.ShoppcartMapper">
+
+    <insert id="insert">
+        insert into shoppcart values (null,#{gname},#{user.uid},#{good.gid},#{count},#{price},default)
+    </insert>
+    <update id="update">
+        update shoppcart
+        <set>
+            <if test="good!=null">
+                gname=#{good.gname},
+            </if>
+            <if test="user!=null">
+                uid=#{user.uid},
+            </if>
+            <if test="good!=null">
+                gid=#{good.gid},
+            </if>
+            <if test="count!=null">
+                count=#{count},
+            </if>
+            <if test="price!=null">
+                price=#{price},
+            </if>
+            <if test="createtime!=null">
+                createtime=#{createtime},
+            </if>
+        </set>
+        where id=#{id}
+    </update>
+    <delete id="deleteById">
+        delete from shoppcart where id=#{id}
+    </delete>
+    <select id="selectAll" resultMap="ShoppMapper">
+        select *
+        from shoppcart sp,user u ,good g where sp.uid=u.uid and sp.gid=g.gid;
+    </select>
+   <resultMap id="ShoppMapper" type="shoppcart">
+       <id column="id" property="id"/>
+       <result column="gname" property="gname"/>
+       <result column="count" property="count"/>
+       <result column="price" property="price"/>
+       <result column="createTime" property="createtime"/>
+       <association property="user" javaType="user">
+           <id property="uid" column="uid"/>
+           <result column="uname"   property="uname" />
+           <result column="password" property="password"/>
+           <result column="email" property="email"/>
+           <result column="phone" property="phone"/>
+           <result column="balance" property="balance"/>
+           <result column="registTime" property="registtime"/>
+       </association>
+       <association property="good" javaType="good">
+           <id property="gid" column="gid"/>
+           <result column="gname" property="gname"/>
+           <result column="price" property="price"/>
+           <result column="count" property="count"/>
+           <result column="isDelete" property="isDelete"/>
+           <association property="goodCategory"  javaType="goodCategory" select="selectByCid" column="cid">
+               <id property="cid" column="cid"/>
+               <result property="cname" column="cname"/>
+               <result column="isDelete" property="isDelete"/>
+           </association>
+       </association>
+   </resultMap>
+    <select id="selectByCid" resultType="com.woniu01.entity.GoodCategory">
+        select * from good_category where cid=#{cid} and isDelete=0
+    </select>
+    <select id="selectById" resultMap="ShoppMapper">
+        select *
+        from shoppcart sp,user u ,good g where sp.uid=u.uid and sp.gid=g.gid and sp.id=#{id}
+    </select>
+    <select id="selectByUid" resultMap="ShoppMapper">
+        select *
+        from shoppcart sp,user u ,good g where sp.uid=u.uid and sp.gid=g.gid and sp.uid=#{uid}
+    </select>
+    <select id="selectByGid" resultMap="ShoppMapper">
+        select *
+        from shoppcart sp,user u ,good g where sp.uid=u.uid and sp.gid=g.gid and sp.gid=#{gid}
+    </select>
+</mapper>

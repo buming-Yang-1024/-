@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.woniu01.mapper.GoodCategoryMapper">
+
+
+
+    <sql id="Base_Column_List">
+        cid,cname
+    </sql>
+    <insert id="insert">
+        insert into good_category(cid, cname, isDelete) values(null,#{cname},default)
+    </insert>
+    <update id="update">
+        update good_category
+        <set>
+            <if test="cname!=null">
+                cname=#{cname}
+            </if>
+        </set>
+        where cid=#{cid} and isDelete=0
+    </update>
+    <delete id="deleteByName">
+        update good_category set isDelete=1 where cname=#{cname}
+    </delete>
+    <select id="selectAll" resultType="com.woniu01.entity.GoodCategory">
+        select * from good_category where isDelete=0
+    </select>
+    <select id="selectById" resultType="com.woniu01.entity.GoodCategory">
+        select * from good_category where cid=#{cid} and isDelete=0
+    </select>
+    <select id="selectByName" resultType="com.woniu01.entity.GoodCategory">
+        select * from good_category where cname= #{cname} and isDelete=0
+    </select>
+</mapper>

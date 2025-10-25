@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.woniu01.mapper.OrderitemMapper">
+    <insert id="insert">
+        insert into orderitem values (default,#{orders.oid},#{good.gid},#{price},#{count},default)
+    </insert>
+    <update id="update">
+        update orderitem
+        <set>
+            <if test="orders!=null" >
+                oid=#{orders.oid},
+            </if>
+            <if test="good!=null">
+                gid=#{good.gid},
+            </if>
+            <if test="price!=null">
+                price=#{price},
+            </if>
+            <if test="count!=null">
+                count=#{count},
+            </if>
+        </set>
+        where otid=#{otid} and isDelete=0
+    </update>
+    <delete id="deleteByOtid">
+        update orderitem set isDelete=1 where otid=#{otid}
+    </delete>
+
+    <select id="selectAll" resultMap="orderitemMapper">
+        select * from orderitem where isDelete=0
+    </select>
+    <select id="selectById" resultType="com.woniu01.entity.Orderitem">
+        select * from orderitem where otid=#{oid} and orderitem.isDelete=0
+    </select>
+    <resultMap id="orderitemMapper" type="orderitem">
+        <id column="otid" property="otid"/>
+        <result column="price" property="price"/>
+        <result column="count" property="count"/>
+        <result column="isDelete" property="isDelete"/>
+        <association property="orders" javaType="orders" select="selectOrdersByOid" column="oid">
+            <id column="oid" property="oid"/>
+            <result column="totalMoney" property="totalMoney"/>
+            <result column="totalCount" property="totalCount"/>
+            <result column="aname" property="aname"/>
+            <result column="orderTime" property="orderTime"/>
+            <result column="isDelete" property="isDelete"/>
+        </association>
+        <association property="good" javaType="good" select="selectGoodByGid" column="gid">
+            <id property="gid" column="gid"/>
+            <result column="gname" property="gname"/>
+            <result column="price" property="price"/>
+            <result column="count" property="count"/>
+            <result column="isDelete" property="isDelete"/>
+        </association>
+    </resultMap>
+    <select id="selectOrdersByOid" resultType="orders">
+        select * from orders where oid=#{oid} and isDelete=0
+    </select>
+    <select id="selectGoodByGid" resultType="good">
+        select * from good where gid=#{gid} and isDelete=0
+    </select>
+</mapper>

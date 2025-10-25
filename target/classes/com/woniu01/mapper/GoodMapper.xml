@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.woniu01.mapper.GoodMapper">
+
+
+    <sql id="Base_Column_List">
+        gid,gname,price,
+        count,cid
+    </sql>
+    <insert id="insert">
+        insert into good(gid,gname,price,count,cid, isDelete)
+        values(null,#{gname},#{price},#{count},#{goodCategory.cid},default)
+    </insert>
+    <update id="update">
+        update good
+        <set>
+            <if test="gname!=null">
+                gname=#{gname},
+            </if>
+            <if test="price!=null">
+                price=#{price},
+            </if>
+            <if test="count!=null">
+                `count`=#{count},
+            </if>
+            <if test="goodCategory!=null">
+                cid=#{goodCategory.cid}
+            </if>
+        </set>
+        where gid=#{gid} and isDelete=0
+    </update>
+    <delete id="deleteByName">
+        update good set isDelete=1 where gname=#{gname}
+    </delete>
+    <select id="selectAll" resultMap="GoodMapper">
+        select * from good where isDelete=0
+    </select>
+    <resultMap id="GoodMapper" type="good">
+        <id property="gid" column="gid"/>
+        <result column="gname" property="gname"/>
+        <result column="price" property="price"/>
+        <result column="count" property="count"/>
+        <result column="isDelete" property="isDelete"/>
+        <association property="goodCategory"  javaType="goodCategory" select="selectByCid" column="cid">
+            <id property="cid" column="cid"/>
+            <result property="cname" column="cname"/>
+            <result column="isDelete" property="isDelete"/>
+        </association>
+    </resultMap>
+    <select id="selectByCid" resultType="com.woniu01.entity.GoodCategory">
+        select * from good_category where cid=#{cid} and isDelete=0
+    </select>
+    <select id="selectById" resultMap="GoodMapper">
+        select * from good where gid=#{gid} and isDelete=0
+    </select>
+    <select id="selectByName" resultType="com.woniu01.entity.Good">
+        select * from good where gname= #{gname} and isDelete=0
+    </select>
+    <select id="selectByIdBatch" resultMap="GoodMapper">
+        select * from good where isDelete=0 and gid in
+                            <foreach collection="list" open="(" separator="," close=")" item="gid">
+                                #{gid}
+                            </foreach>
+    </select>
+    <select id="selectGoodByCid" resultType="com.woniu01.entity.Good">
+        select * from good where cid=#{cid} and isDelete=0
+    </select>
+</mapper>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.woniu01.mapper.OrdersMapper">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="oid">
+        insert into orders values (default,#{user.uid},#{totalMoney},#{totalCount},#{aname},#{phone},#{email},#{orderTime},default)
+    </insert>
+    <update id="update">
+        update orders
+        <set>
+            <if test="user!=null" >
+                uid=#{user.uid},
+            </if>
+        <if test="totalMoney!=null">
+            totalMoney=#{totalMoney},
+        </if>
+            <if test="totalCount!=null">
+                totalCount=#{totalCount},
+            </if>
+            <if test="aname!=null">
+                aname=#{aname},
+            </if>
+            <if test="phone!=null">
+                phone=#{phone},
+            </if>
+            <if test="email!=null">
+                email=#{email},
+            </if>
+            <if test="orderTime!=null">
+                orderTime=#{orderTime},
+            </if>
+        </set>
+        where oid=#{oid} and isDelete=0
+    </update>
+    <delete id="deleteByOid">
+        update orders set isDelete=1 where oid=#{oid}
+    </delete>
+    <select id="selectAll" resultMap="ordersMapper">
+        select * from orders,user where orders.uid=user.uid  and orders.isDelete=0
+    </select>
+<!--   分步查询-->
+    <select id="selectStepByOid" resultMap="ordersStepMapper">
+        select * from orders where oid=#{oid} and isDelete=0
+    </select>
+    <resultMap id="ordersStepMapper" type="orders">
+        <id column="oid" property="oid"/>
+        <association property="user" javaType="user" select="selectUserByUid" column="uid"/>
+        <collection property="orderitemList" ofType="orderitem" select="selectOrderitemsByOid" column="oid"/>
+    </resultMap>
+    <resultMap id="orderitemMapper" type="orderitem">
+        <association property="good" javaType="good" select="com.woniu01.mapper.GoodMapper.selectById" column="gid"/>
+    </resultMap>
+    <select id="selectUserByUid" resultType="user">
+        select * from user where uid=#{uid}
+    </select>
+    <select id="selectOrderitemsByOid" resultMap="orderitemMapper">
+        select * from orderitem where oid=#{oid} and isDelete=0
+    </select>
+
+<!--    一步查询-->
+    <select id="selectById" resultMap="ordersMapper">
+        select * from orders od, user u,orderitem ord,good g,good_category gc
+        where od.uid=u.uid and ord.oid=od.oid and ord.gid=g.gid and g.cid=gc.cid
+          and  od.oid=#{oid}
+    </select>
+    <resultMap id="ordersMapper" type="orders">
+        <id column="oid" property="oid"/>
+        <association property="user" javaType="user">
+            <id property="uid" column="uid"/>
+        </association>
+        <collection property="orderitemList" ofType="orderitem" >
+            <id column="otid" property="otid"/>
+            <association property="good" javaType="good">
+                <id  column="gid" property="gid"/>
+                <association property="goodCategory" javaType="goodCategory">
+                    <id property="cid" column="cid"/>
+                </association>
+            </association>
+        </collection>
+    </resultMap>
+
+</mapper>
